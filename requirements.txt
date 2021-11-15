@@ -12,6 +12,7 @@ entrypoints==0.3
 htmlmin==0.1.12
 idna==3.2
 ImageHash==4.2.1
+imblearn==0.0
 importlib-metadata==4.8.1
 ipykernel==6.4.1
 ipython==7.27.0
@@ -52,6 +53,7 @@ pyzmq==22.3.0
 quickda==0.2.2
 requests==2.26.0
 scikit-learn==0.24.2
+scikit-plot==0.3.7
 scipy==1.7.1
 seaborn==0.11.2
 six==1.16.0
@@ -65,4 +67,5 @@ typing-extensions==3.10.0.2
 urllib3==1.26.7
 visions==0.7.1
 wcwidth==0.2.5
+xgboost==1.5.0
 zipp==3.5.0
