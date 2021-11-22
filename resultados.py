@@ -30,6 +30,13 @@ def plot_confusion_matrix(cm):
     ax.xaxis.set_ticklabels(['0','1'])
     ax.yaxis.set_ticklabels(['0','1'])
 
+    with st.expander("Explicación"):
+        st.markdown("* **VERDADERO NEGATIVO**: Observaciones falsas clasificadas correctamente como clase 0.")
+        st.markdown("* **FALSO POSITIVO**: Observaciones falsas clasificadas como clase 1, de manera incorrecta.")
+        st.markdown("* **FALSO NEGATIVO**: Observaciones de la clase 1, clasificadas incorrectamente como clase 0")
+        st.markdown("* **VERDADERO POSITIVO**: Observaciones verdaderas, clasificadas correctamente")
+        st.markdown("")
+
 # curva auc-roc
 def plot_auc_roc(model, x_test, y_test):
     y_pred_proba = model.predict(x_test) if selected_model == 3 else model.predict_proba(x_test)[::,1]        
@@ -43,6 +50,11 @@ def plot_auc_roc(model, x_test, y_test):
 
     plt.legend(loc=4)
 
+    with st.expander("Explicación"):
+        st.markdown("La curva ROC resume el trade-off entre la tasa de verdaderos positivos y la tasa de falsos positivos, utilizando distintos thresholds de probabilidad para realizar el cálculo.")
+        st.markdown("Este tipo de gráficas es más apropiado cuando el set de datos se encuentra balanceado entre las dos clases predictivas.")
+        st.markdown("El objetivo es maximizar el área bajo la curva de la gráfica, lo que supone mejor habilidad para clasificar observaciones positivas por parte del modelo, lo que significa un mejor modelo.")
+
 # curva de precision v recall para mostrar el tradeoff entre ambas métricas
 def plot_precision_recall(model, x_test, y_test):
     y_pred_proba = model.predict(x_test) if selected_model == 3 else model.predict_proba(x_test)[::,1]
@@ -54,6 +66,41 @@ def plot_precision_recall(model, x_test, y_test):
     plt.ylabel('Precision')
         
     plt.legend()
+
+    with st.expander("Explicación"):
+        st.markdown("La curva Precision-Recall resume el trade-off entre la tasa de verdaderos positivos y el valor predictivo positivo de un modelo. Utiliza distintos thresholds de probabilidad para realizar el calculo")
+        st.markdown("Revisar tanto el precision como el recall es útil en casos donde las observaciones son desbalanceadas para las dos clases.")
+        st.markdown("El objetivo es maximizar el área bajo la curva de la gráfica, lo que supone una mejor precisión y un mejor recall, traduciéndose en un mejor modelo.")
+
+def plot_classification_report(cm):
+    accuracy   = (cm[0][0] + cm[1][1]) / (cm[0][0] + cm[0][1] + cm[1][0] + cm[1][1])
+    precision  = cm[0][0] / (cm[0][0] + cm[1][0])
+    recall     = cm[0][0] / (cm[0][0] + cm[0][1])
+    _precision = cm[1][1] / (cm[1][1] + cm[0][1])
+    _recall    = cm[1][1] / (cm[1][1] + cm[1][0])
+
+    with st.expander("Explicación"):
+        st.markdown("* RECALL: Qué proporción de los elementos identificados en una clase es correcta.")
+        st.markdown("* PRECISION: Cuántos de los verdaderos valores de la clase fueron identificados en ella.")
+        st.markdown("* ACCURACY: Proporción de predicciones correctas hechas por el modelo")
+        st.markdown("")
+    
+    st.markdown("##### Class 0")
+
+    _, col2, col3 = st.columns(3)
+    col2.metric("Precision", round(precision, 3), "-" if precision < 0.5 else "+")
+    col3.metric("Recall", round(recall, 3), "-" if recall < 0.5 else "+")
+
+    st.markdown("##### Class 1")
+
+    _, col2, col3 = st.columns(3)
+    col2.metric("Precision", round(_precision, 3), "-" if _precision < 0.5 else "+")
+    col3.metric("Recall", round(_recall, 3), "-" if _recall < 0.5 else "+")
+
+    st.markdown("##### Model")
+
+    _, _, col3 = st.columns(3)
+    col3.metric("Accuracy", round(accuracy, 3), "-" if accuracy < 0.5 else "+")
 
 
 # dictionaries for options
@@ -88,8 +135,19 @@ metrics = {
     4: 'Reporte',
 }
 
+images = {
+    1: './resources/log.png',
+    2: './resources/svm.png',
+    3: './resources/xgboost.jpg'
+}
+
 # sidebar configuration
+st.sidebar.header("Selección de modelos")
 selected_model = st.sidebar.selectbox("Elija un modelo", (1, 2, 3), format_func=lambda x: names[x])
+
+with st.sidebar.container():
+    st.empty()
+    st.image(images[selected_model], caption=None, width=300)
 
 
 # models and metrics
@@ -151,35 +209,7 @@ if selected_metric < 4:
 
     st.pyplot(fig)
 else:
-
-    accuracy   = (cm[0][0] + cm[1][1]) / (cm[0][0] + cm[0][1] + cm[1][0] + cm[1][1])
-    precision  = cm[0][0] / (cm[0][0] + cm[1][0])
-    recall     = cm[0][0] / (cm[0][0] + cm[0][1])
-    _precision = cm[1][1] / (cm[1][1] + cm[0][1])
-    _recall    = cm[1][1] / (cm[1][1] + cm[1][0])
-    
-    st.markdown("##### Class 0")
-
-    _, col2, col3 = st.columns(3)
-    col2.metric("Precision", round(precision, 3), "-" if precision < 0.5 else "+")
-    col3.metric("Recall", round(recall, 3), "-" if recall < 0.5 else "+")
-
-    st.markdown("##### Class 1")
-
-    _, col2, col3 = st.columns(3)
-    col2.metric("Precision", round(_precision, 3), "-" if _precision < 0.5 else "+")
-    col3.metric("Recall", round(_recall, 3), "-" if _recall < 0.5 else "+")
-
-    st.markdown("##### Model")
-
-    _, _, col3 = st.columns(3)
-    col3.metric("Accuracy", round(accuracy, 3), "-" if accuracy < 0.5 else "+")
-
-    with st.expander("Explicación"):
-        st.markdown("* RECALL: Qué proporción de los elementos identificados en una clase es correcta.")
-        st.markdown("* PRECISION: Cuántos de los verdaderos valores de la clase fueron identificados en ella.")
-        st.markdown("* ACCURACY: Proporción de predicciones correctas hechas por el modelo")
-        st.markdown("")
+    plot_classification_report(cm)
 
 # using models to predict
 st.header('Predicción')
@@ -191,10 +221,9 @@ st.markdown("##### Demográfico")
 age = st.number_input("Edad", min_value=0, max_value=100, format="%d")
 
 st.markdown("##### Montos de pago")
-col1, col2, col3 = st.columns(3)
+col1, col2 = st.columns(2)
 pay_amt4 = col1.number_input('Pago anterior en junio (dólares)', min_value=0.00)
 pay_amt5 = col2.number_input('Pago anterior en mayo (dólares)', min_value=0.00)
-# pay_amt6 = col3.number_input('Pago anterior en abril (dólares)', min_value=0.00)
 
 st.markdown("##### Estado de reembolso")
 col1, col2, col3 = st.columns(3)
@@ -207,7 +236,7 @@ pay_4 = col1.number_input('Estado de reembolso junio', min_value=-1, max_value=9
 pay_5 = col2.number_input('Estado de reembolso mayo', min_value=-1, max_value=9,)
 pay_6 = col3.number_input('Estado de reembolso abril', min_value=-1, max_value=9,)
 
-# TODO: Traducir inputs a variables para predicción.
+
 pay_1_2 = pay_1 == 2
 pay_1_3 = pay_1 == 3
 pay_1_4 = pay_1 == 4
@@ -226,7 +255,6 @@ pay_5_7 = pay_5 == 7
 pay_6_3 = pay_6 == 3
 pay_6_4 = pay_6 == 4
 pay_6_7 = pay_6 == 7
-# TODO: Escalar las variables
 
 pred_input = np.asarray([[
     age, pay_amt4, pay_amt5, pay_1_2, pay_1_3,
@@ -240,7 +268,6 @@ predict = st.button(f"¡Hacer predicción con {names[selected_model]}!")
 
 if predict:
     with st.spinner('Calculating...'):
-        # TODO: Make predictions
         with open('./models/scaler.pkl', 'rb') as file:
             scaler = pickle.load(file)
 
@@ -248,7 +275,4 @@ if predict:
 
         pred = model.predict(sc_input)
         
-        # time.sleep(6)
-        
-    # TODO: Show result
     st.info(f'Según el modelo de {names[selected_model]} el cliente {"SI" if pred[0]==1 else "NO"} incumplirá en el pago.')
