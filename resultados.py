@@ -186,6 +186,7 @@ st.header('Predicción')
 
 st.markdown("Ingrese los datos solicitados para predecir si el cliente incurrirá o no en default payment")
 
+
 st.markdown("##### Demográfico")
 age = st.number_input("Edad", min_value=0, max_value=100, format="%d")
 
@@ -193,7 +194,7 @@ st.markdown("##### Montos de pago")
 col1, col2, col3 = st.columns(3)
 pay_amt4 = col1.number_input('Pago anterior en junio (dólares)', min_value=0.00)
 pay_amt5 = col2.number_input('Pago anterior en mayo (dólares)', min_value=0.00)
-pay_amt6 = col3.number_input('Pago anterior en abril (dólares)', min_value=0.00)
+# pay_amt6 = col3.number_input('Pago anterior en abril (dólares)', min_value=0.00)
 
 st.markdown("##### Estado de reembolso")
 col1, col2, col3 = st.columns(3)
@@ -207,14 +208,47 @@ pay_5 = col2.number_input('Estado de reembolso mayo', min_value=-1, max_value=9,
 pay_6 = col3.number_input('Estado de reembolso abril', min_value=-1, max_value=9,)
 
 # TODO: Traducir inputs a variables para predicción.
+pay_1_2 = pay_1 == 2
+pay_1_3 = pay_1 == 3
+pay_1_4 = pay_1 == 4
+pay_2_2 = pay_2 == 2
+pay_2_3 = pay_2 == 3
+pay_3_3 = pay_3 == 3
+pay_3_4 = pay_3 == 4
+pay_3_7 = pay_3 == 7
+pay_4_3 = pay_4 == 3
+pay_4_4 = pay_4 == 4
+pay_4_7 = pay_4 == 7
+pay_5_2 = pay_5 == 2
+pay_5_3 = pay_5 == 3
+pay_5_4 = pay_5 == 4
+pay_5_7 = pay_5 == 7
+pay_6_3 = pay_6 == 3
+pay_6_4 = pay_6 == 4
+pay_6_7 = pay_6 == 7
 # TODO: Escalar las variables
 
-predict = st.button("¡Hacer predicción!")
+pred_input = np.asarray([[
+    age, pay_amt4, pay_amt5, pay_1_2, pay_1_3,
+    pay_1_4, pay_2_2, pay_2_3, pay_3_3, pay_3_4,
+    pay_3_7, pay_4_3, pay_4_4, pay_4_7, pay_5_2,
+    pay_5_3, pay_5_4, pay_5_7, pay_6_3, pay_6_4, pay_6_7
+]])
+
+
+predict = st.button(f"¡Hacer predicción con {names[selected_model]}!")
 
 if predict:
     with st.spinner('Calculating...'):
         # TODO: Make predictions
-        time.sleep(6)
+        with open('./models/scaler.pkl', 'rb') as file:
+            scaler = pickle.load(file)
+
+        sc_input = scaler.transform(pred_input)
+
+        pred = model.predict(sc_input)
+        
+        # time.sleep(6)
         
     # TODO: Show result
-    st.info('El cliente...')
+    st.info(f'Según el modelo de {names[selected_model]} el cliente {"SI" if pred[0]==1 else "NO"} incumplirá en el pago.')
