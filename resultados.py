@@ -174,7 +174,9 @@ data = pd.read_csv("./data/clean_data.csv")
 important_columns = [
     'limit_bal', 'age', 'default_payment_next_month', 
     'pay_amt1', 'pay_amt2', 'pay_amt3', 'pay_amt4', 'pay_amt5', 'pay_amt6',
-    'female', 'education_1', 'education_2','education_3'
+    'female', 'pay_1_2', 'pay_1_3', 'pay_1_4', 'pay_2_2', 'pay_2_3',
+    'pay_3_3', 'pay_3_4', 'pay_3_7', 'pay_4_3', 'pay_4_4', 'pay_4_7',
+    'pay_5_2', 'pay_5_3', 'pay_5_4', 'pay_5_7', 'pay_6_3', 'pay_6_4', 'pay_6_7'
 ]
 
 important_data = data[important_columns]
